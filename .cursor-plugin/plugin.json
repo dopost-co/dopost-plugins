@@ -1,0 +1,24 @@
+{
+  "name": "dopost",
+  "displayName": "dopost",
+  "version": "1.0.0",
+  "description": "Plan, schedule, publish, and analyze social media content with dopost from Cursor.",
+  "author": {
+    "name": "dopost",
+    "email": "support@dopost.co"
+  },
+  "homepage": "https://dopost.co/docs/api/mcp/setup",
+  "license": "MIT",
+  "logo": "assets/logo.png",
+  "keywords": [
+    "social-media",
+    "publishing",
+    "scheduling",
+    "analytics",
+    "mcp"
+  ],
+  "category": "integrations",
+  "skills": "./skills/",
+  "mcpServers": "./mcp.cursor.json",
+  "repository": "https://github.com/dopost-co/dopost-plugins"
+}

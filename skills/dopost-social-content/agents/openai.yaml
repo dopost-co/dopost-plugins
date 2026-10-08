@@ -1,0 +1,4 @@
+interface:
+  display_name: "dopost Social Content"
+  short_description: "Safely plan and publish social content"
+  default_prompt: "Use $dopost-social-content to help me draft, schedule, publish, or analyze my social content with dopost."

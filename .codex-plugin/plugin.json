@@ -1,0 +1,44 @@
+{
+  "name": "dopost-chatgpt-marketplace",
+  "version": "1.0.1",
+  "description": "Plan, publish, manage, and analyze social media content from ChatGPT and Codex.",
+  "author": {
+    "name": "dopost",
+    "email": "support@dopost.co",
+    "url": "https://dopost.co"
+  },
+  "homepage": "https://dopost.co/docs/api/mcp/setup",
+  "repository": "https://github.com/dopost-co/dopost-plugins",
+  "license": "MIT",
+  "keywords": [
+    "social-media",
+    "publishing",
+    "scheduling",
+    "analytics",
+    "mcp"
+  ],
+  "interface": {
+    "displayName": "dopost",
+    "shortDescription": "Plan and publish social posts",
+    "longDescription": "Connect your dopost account to plan, schedule, publish, and manage posts across your authorized social accounts. Review post and audience analytics, inspect platform limits, manage recurring content, and prepare permitted public-media downloads without leaving the conversation. Authenticated features require an existing dopost Pro or Agency account.",
+    "developerName": "dopost",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://dopost.co",
+    "supportURL": "https://help.dopost.co/",
+    "privacyPolicyURL": "https://dopost.co/privacy",
+    "termsOfServiceURL": "https://dopost.co/terms",
+    "defaultPrompt": [
+      "Show my connected social accounts and the posts scheduled for this week.",
+      "Compare my social performance over the last 30 days and highlight the strongest accounts.",
+      "Draft an Instagram post for tomorrow at 10:00, but ask me to approve the final text before scheduling it."
+    ],
+    "brandColor": "#18181B",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png"
+  },
+  "mcpServers": "./.mcp.json"
+}
