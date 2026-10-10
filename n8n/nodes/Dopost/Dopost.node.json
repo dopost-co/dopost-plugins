@@ -1,0 +1,12 @@
+{
+	"node": "@dopost/n8n-nodes-dopost.dopost",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://github.com/dopost-co/dopost-plugins/tree/main/n8n#credentials" }
+		],
+		"primaryDocumentation": [{ "url": "https://github.com/dopost-co/dopost-plugins/tree/main/n8n" }]
+	}
+}

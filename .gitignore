@@ -1,0 +1,8 @@
+n8n/node_modules/
+n8n/dist/
+n8n/*.tsbuildinfo
+*.tgz
+.env
+.env.*
+*.log
+.DS_Store

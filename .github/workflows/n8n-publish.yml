@@ -1,0 +1,35 @@
+name: Publish Dopost n8n node
+on:
+  push:
+    tags: ['n8n-v*']
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: n8n-npm-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: n8n
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Check release tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node -e 'const p = require("./package.json"); if (process.env.RELEASE_TAG !== `n8n-v${p.version}`) throw new Error("Release tag must match package version")'
+      - run: npm ci
+      # prepublishOnly runs the official linter, build, and offline execution tests.
+      # Configure npm Trusted Publishing for dopost-co/dopost-plugins and this
+      # exact filename, n8n-publish.yml. NPM_TOKEN is an optional first-release
+      # bootstrap secret; remove it once Trusted Publishing has been configured.
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

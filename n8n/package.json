@@ -1,0 +1,62 @@
+{
+	"name": "@dopost/n8n-nodes-dopost",
+	"version": "0.1.0",
+	"description": "Manage social accounts, publish and schedule posts, and read analytics with Dopost",
+	"license": "MIT",
+	"homepage": "https://dopost.co",
+	"keywords": [
+		"n8n-community-node-package",
+		"dopost",
+		"social-media"
+	],
+	"author": {
+		"name": "dopost",
+		"email": "support@dopost.co"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/dopost-co/dopost-plugins.git",
+		"directory": "n8n"
+	},
+	"bugs": {
+		"url": "https://github.com/dopost-co/dopost-plugins/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "npm run build && node --test test/*.test.mjs",
+		"prepublishOnly": "npm run lint && npm test"
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/DopostApi.credentials.js",
+			"dist/credentials/DopostOAuth2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Dopost/Dopost.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.51.3",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}

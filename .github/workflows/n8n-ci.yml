@@ -1,0 +1,24 @@
+name: Check Dopost n8n node
+on:
+  pull_request:
+    paths: ['n8n/**', '.github/workflows/n8n-*.yml']
+  push:
+    branches: [main]
+    paths: ['n8n/**', '.github/workflows/n8n-*.yml']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: n8n
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm pack --dry-run --ignore-scripts
