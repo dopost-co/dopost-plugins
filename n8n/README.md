@@ -7,7 +7,7 @@ See the [n8n integration guide](https://dopost.co/docs/api/n8n) for connection
 steps and a publishing workflow, or read it in
 [Spanish](https://dopost.co/es/docs/api/n8n).
 
-Requires n8n **2.42.4 or newer** and a Dopost Pro or Agency account with API
+Requires n8n **2.42.4 or newer** and a Dopost Creator, Pro or Agency account with API
 access. A connected social account is required for publishing. Build and
 development tooling use Node.js 24 or newer.
 
@@ -40,14 +40,14 @@ Create a key in Dopost's API settings and paste it into **Dopost API**. Enable
 `social:accounts` for discovery and credential testing, plus the scopes for
 the operations you need:
 
-| Operation | Scope |
-| --- | --- |
-| List accounts or workspaces | `social:accounts` |
-| Create, publish, or schedule a post | `posts:create` |
-| Get or list posts | `posts:read` |
-| Reschedule a post | `posts:reschedule` |
-| Delete a post | `posts:delete` |
-| Get analytics overview | `analytics:read` |
+| Operation                           | Scope              |
+| ----------------------------------- | ------------------ |
+| List accounts or workspaces         | `social:accounts`  |
+| Create, publish, or schedule a post | `posts:create`     |
+| Get or list posts                   | `posts:read`       |
+| Reschedule a post                   | `posts:reschedule` |
+| Delete a post                       | `posts:delete`     |
+| Get analytics overview              | `analytics:read`   |
 
 API keys are scoped to their workspace. OAuth access follows the workspaces
 and permissions granted in Dopost. n8n encrypts credentials; never put keys
@@ -88,13 +88,13 @@ fields (always including the post ID). The node can also be used as an AI tool.
 Media accepts URLs or objects, for example:
 
 ```json
-[{"url":"https://example.com/image.jpg","type":"image/jpeg","alt":"An image description"}]
+[{ "url": "https://example.com/image.jpg", "type": "image/jpeg", "alt": "An image description" }]
 ```
 
 Thread accepts additional posts, for example:
 
 ```json
-[{"text":"Second post in the thread"}]
+[{ "text": "Second post in the thread" }]
 ```
 
 Threads are supported by X, Threads, and Mastodon; replies by X and Threads.
@@ -156,3 +156,18 @@ through the [n8n Creator Portal](https://creators.n8n.io/nodes) for verification
 
 [MIT](LICENSE). Use of the Dopost service is subject to its
 [terms](https://dopost.co/terms) and [privacy policy](https://dopost.co/privacy).
+
+## Google Business and workspace dates
+
+Connect verified locations in dopost first and use the returned accountId.
+Unzoned dates use the workspace timezone; explicit Z/offset dates retain their
+instant. Publishing supports standard updates, events, offers and gallery media.
+Events/offers may omit text/media; PROFILE/COVER require photos and gallery video
+must be MP4. Recurring supports standard updates only. See the
+[Google Business API guide](https://dopost.co/docs/api/google-business).
+
+Overview exposes GOOGLE_BUSINESS daily Search/Maps and action metrics. Monthly
+search terms preserve location identity and privacy thresholds and support
+pagination. They use the existing analytics:read scope and do not call Google.
+
+Use Analytics → Get Google Business Search Terms. Platform Options JSON accepts the examples in the guide; use the raw post output for Google options/errors.

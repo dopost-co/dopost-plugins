@@ -2,6 +2,14 @@ name: Publish Dopost n8n node
 on:
   push:
     tags: ['n8n-v*']
+  repository_dispatch:
+    types: [dopost-n8n-release]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing n8n-vX.Y.Z tag to retry
+        required: true
+        type: string
 permissions:
   contents: read
   id-token: write
@@ -11,25 +19,98 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: n8n
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Resolve immutable release tag
+        id: release
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+          PUSH_TAG: ${{ github.ref_name }}
+          DISPATCH_TAG: ${{ github.event.client_payload.tag }}
+          MANUAL_TAG: ${{ inputs.tag }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { appendFile } from 'node:fs/promises';
+          const env = process.env;
+          if (env.EVENT_NAME !== 'push') assert.equal(env.EVENT_REF, 'refs/heads/main');
+          const tag = env.EVENT_NAME === 'push' ? env.PUSH_TAG
+            : env.EVENT_NAME === 'repository_dispatch' ? env.DISPATCH_TAG : env.MANUAL_TAG;
+          assert.match(tag, /^n8n-v\d+\.\d+\.\d+$/);
+          await appendFile(env.GITHUB_OUTPUT, `tag=${tag}\n`);
+          NODE
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: refs/tags/${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
           registry-url: https://registry.npmjs.org
-      - name: Check release tag matches package version
+      - name: Verify tag, main ancestry and npm publication state
+        id: registry
+        working-directory: n8n
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
-          node -e 'const p = require("./package.json"); if (process.env.RELEASE_TAG !== `n8n-v${p.version}`) throw new Error("Release tag must match package version")'
-      - run: npm ci
-      # prepublishOnly runs the official linter, build, and offline execution tests.
-      # Configure npm Trusted Publishing for dopost-co/dopost-plugins and this
-      # exact filename, n8n-publish.yml. NPM_TOKEN is an optional first-release
-      # bootstrap secret; remove it once Trusted Publishing has been configured.
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          git merge-base --is-ancestor HEAD origin/main
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile, appendFile } from 'node:fs/promises';
+          import { execFileSync } from 'node:child_process';
+          const pkg = JSON.parse(await readFile('package.json', 'utf8'));
+          assert.equal(pkg.name, '@dopost/n8n-nodes-dopost');
+          assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
+          assert.equal(process.env.RELEASE_TAG, `n8n-v${pkg.version}`);
+          const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${pkg.version}`, {
+            signal: AbortSignal.timeout(30_000),
+          });
+          let published = false;
+          if (response.status !== 404) {
+            assert.ok(response.ok, `npm registry unavailable (${response.status}); refusing to guess`);
+            const existing = await response.json();
+            assert.equal(existing.name, pkg.name);
+            assert.equal(existing.version, pkg.version);
+            const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+            assert.equal(existing.gitHead, head, 'Existing npm version belongs to a different commit');
+            published = true;
+          } else {
+            const latestResponse = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/latest`, {
+              signal: AbortSignal.timeout(30_000),
+            });
+            if (latestResponse.status !== 404) {
+              assert.ok(latestResponse.ok, `npm registry unavailable (${latestResponse.status})`);
+              const latest = await latestResponse.json();
+              assert.equal(latest.name, pkg.name);
+              assert.match(latest.version, /^\d+\.\d+\.\d+$/);
+              const current = pkg.version.split('.').map(Number);
+              const previous = latest.version.split('.').map(Number);
+              const firstDifference = current.findIndex((part, i) => part !== previous[i]);
+              assert.ok(firstDifference >= 0 && current[firstDifference] > previous[firstDifference],
+                'Refusing to publish an older version over latest');
+            }
+          }
+          await appendFile(process.env.GITHUB_OUTPUT, `published=${published}\n`);
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,
+            `n8n ${pkg.version}: ${published ? 'already published; skipped' : 'validated for publication'}\n`);
+          NODE
+      - name: Install dependencies
+        if: steps.registry.outputs.published == 'false'
+        working-directory: n8n
+        run: npm ci
+      - name: Lint
+        if: steps.registry.outputs.published == 'false'
+        working-directory: n8n
+        run: npm run lint
+      - name: Build and test
+        if: steps.registry.outputs.published == 'false'
+        working-directory: n8n
+        run: npm test
+      - name: Publish with npm Trusted Publishing
+        if: steps.registry.outputs.published == 'false'
+        working-directory: n8n
+        # Checks already ran above. OIDC authenticates this exact repository and
+        # workflow filename; no long-lived NPM_TOKEN is passed to the process.
+        run: npm publish --ignore-scripts --provenance --access public

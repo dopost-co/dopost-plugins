@@ -86,6 +86,15 @@ export function jsonParameter(
 }
 
 export function futureDate(this: IExecuteFunctions, value: string, index: number): string {
+	// The API resolves unzoned dates using the workspace; never apply the n8n host timezone.
+	if (/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?)?$/.test(value)) {
+		const utc = Date.parse(`${value.includes('T') ? value : `${value}T00:00:00`}Z`);
+		// Reject dates that are past in every timezone; the API checks the workspace-specific boundary.
+		if (Number.isFinite(utc) && utc > Date.now() - 24 * 60 * 60 * 1000) return value;
+		throw new NodeOperationError(this.getNode(), 'Choose a future publish date', {
+			itemIndex: index,
+		});
+	}
 	const date = new Date(value);
 	if (!value || !Number.isFinite(date.getTime()) || date.getTime() <= Date.now()) {
 		throw new NodeOperationError(this.getNode(), 'Choose a future publish date', {

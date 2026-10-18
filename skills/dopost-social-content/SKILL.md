@@ -11,7 +11,7 @@ Use this skill for requests involving a user's dopost workspaces, connected soci
 
 ## Access and account state
 
-- Authenticated hosted MCP tools require a dopost OAuth connection with API access on at least one workspace. If the connection is missing, ask the user to connect dopost in their client. If the connection is rejected because no workspace has API access, explain that Pro or Agency access is required and direct the user to dopost to manage their plan.
+- Authenticated hosted MCP tools require a dopost OAuth connection with API access on at least one workspace. If the connection is missing, ask the user to connect dopost in their client. If the connection is rejected because no workspace has API access, explain that Creator, Pro or Agency access is required and direct the user to dopost to manage their plan.
 - Resolve the target account from the user's wording. Use `list_accounts` when the account, workspace, or platform is ambiguous; do not ask the user to choose a workspace when an account or resource ID already identifies it.
 - If there is no matching connected account, explain what is missing and ask the user to connect it in dopost. Never invent account IDs, posts, metrics, or permissions.
 

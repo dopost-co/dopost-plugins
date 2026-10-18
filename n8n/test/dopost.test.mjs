@@ -359,3 +359,60 @@ test('malformed list responses fail clearly instead of returning empty success',
 	const f = fixture({ resource: 'account', operation: 'getMany' }, [{ accounts: null }]);
 	await assert.rejects(f.execute(), /unexpected 'accounts' response/);
 });
+
+test('Google Business events can omit text/media and keep workspace-local event dates', async () => {
+	const f = fixture(
+		{
+			resource: 'post',
+			operation: 'create',
+			accountId: { mode: 'id', value: 'gb' },
+			text: '',
+			mediaJson: '[]',
+			platformOptionsJson: JSON.stringify({
+				postType: 'event',
+				eventTitle: 'Open day',
+				eventStart: '2027-01-23T10:00:00',
+				eventEnd: '2027-01-23T12:00:00',
+			}),
+			publishingMode: 'immediate',
+			additionalFields: { timezone: 'Europe/Madrid' },
+		},
+		[{ postId: 'p1', status: 'processing' }],
+	);
+	await f.execute();
+	assert.equal(f.requests[0].request.body.platformOptions.eventStart, '2027-01-23T10:00:00');
+	assert.equal(f.requests[0].request.body.timezone, 'Europe/Madrid');
+});
+
+test('Google Business monthly search terms forward account filters and pagination', async () => {
+	const f = fixture(
+		{
+			resource: 'analytics',
+			operation: 'getSearchTerms',
+			workspaceId: { mode: 'id', value: 'w1' },
+			days: 30,
+			analyticsOptions: { accountId: 'gb', limit: 5, cursor: 'next' },
+		},
+		[{ searchTerms: [], nextCursor: null, hasMore: false }],
+	);
+	await f.execute();
+	assert.equal(f.requests[0].request.url, 'https://dopost.co/api/v1/analytics/search-terms');
+	assert.equal(f.requests[0].request.qs.cursor, 'next');
+	assert.equal(f.requests[0].request.qs.accountId, 'gb');
+});
+
+test('Unzoned publishing dates reach the API without using the n8n host timezone', async () => {
+	const f = fixture(
+		{
+			resource: 'post',
+			operation: 'create',
+			accountId: { mode: 'id', value: 'gb' },
+			text: 'Update',
+			publishingMode: 'schedule',
+			publishAt: '2027-01-23T10:00:00',
+		},
+		[{ postId: 'p1', status: 'scheduled' }],
+	);
+	await f.execute();
+	assert.equal(f.requests[0].request.body.publishAt, '2027-01-23T10:00:00');
+});

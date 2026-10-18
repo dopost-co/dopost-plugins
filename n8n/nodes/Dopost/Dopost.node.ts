@@ -124,14 +124,22 @@ export class Dopost implements INodeType {
 						'accounts',
 					);
 					if (!returnAll) result = result.slice(0, limit);
-				} else if (resource === 'analytics' && operation === 'getOverview') {
+				} else if (
+					resource === 'analytics' &&
+					['getOverview', 'getSearchTerms'].includes(operation)
+				) {
 					const options = this.getNodeParameter('analyticsOptions', index, {}) as IDataObject;
 					result = [
-						await dopostRequest.call(this, 'GET', '/analytics/overview', {
-							...workspaceQuery,
-							days: this.getNodeParameter('days', index),
-							...options,
-						}),
+						await dopostRequest.call(
+							this,
+							'GET',
+							operation === 'getSearchTerms' ? '/analytics/search-terms' : '/analytics/overview',
+							{
+								...workspaceQuery,
+								days: this.getNodeParameter('days', index),
+								...options,
+							},
+						),
 					];
 				} else if (resource === 'post') {
 					if (operation === 'create') {
@@ -141,7 +149,18 @@ export class Dopost implements INodeType {
 						idPath(accountId);
 						const text = this.getNodeParameter('text', index, '') as string;
 						const media = jsonParameter.call(this, 'mediaJson', index, 'array') as IDataObject[];
-						if (!text.trim() && media.length === 0)
+						const platformOptions = jsonParameter.call(
+							this,
+							'platformOptionsJson',
+							index,
+							'object',
+						) as IDataObject;
+						const googleEvent =
+							['event', 'offer'].includes(String(platformOptions.postType)) &&
+							platformOptions.eventTitle &&
+							platformOptions.eventStart &&
+							platformOptions.eventEnd;
+						if (!googleEvent && !text.trim() && media.length === 0)
 							throw new NodeOperationError(this.getNode(), 'Provide post text or media', {
 								itemIndex: index,
 							});
@@ -156,8 +175,9 @@ export class Dopost implements INodeType {
 							accountId,
 							text,
 							...(media.length ? { media } : {}),
-							platformOptions: jsonParameter.call(this, 'platformOptionsJson', index, 'object'),
+							platformOptions,
 						};
+						if (additional.timezone) body.timezone = additional.timezone;
 						if (additional.replyTo) body.replyTo = additional.replyTo;
 						if (additional.thread) {
 							let thread: unknown;

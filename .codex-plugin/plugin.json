@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "dopost",
     "shortDescription": "Plan and publish social posts",
-    "longDescription": "Connect your dopost account to plan, schedule, publish, and manage posts across your authorized social accounts. Review post and audience analytics, inspect platform limits, manage recurring content, and prepare permitted public-media downloads without leaving the conversation. Authenticated features require an existing dopost Pro or Agency account.",
+    "longDescription": "Connect your dopost account to plan, schedule, publish, and manage posts across your authorized social accounts. Review post and audience analytics, inspect platform limits, manage recurring content, and prepare permitted public-media downloads without leaving the conversation. Authenticated features require an existing dopost Creator, Pro or Agency account.",
     "developerName": "dopost",
     "category": "Productivity",
     "capabilities": [

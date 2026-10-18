@@ -70,6 +70,13 @@ export const properties: INodeProperties[] = [
 				description: 'Get account performance and time series',
 				action: 'Get analytics overview',
 			},
+			{
+				name: 'Get Google Business Search Terms',
+				value: 'getSearchTerms',
+				description:
+					'Get monthly discovery keywords and privacy thresholds for Google Business locations',
+				action: 'Get monthly search terms',
+			},
 		],
 		default: 'getOverview',
 	},
@@ -121,7 +128,10 @@ export const properties: INodeProperties[] = [
 		description:
 			'Choose a workspace, or leave empty to use all accessible workspaces. Analytics require a selection when more than one workspace is accessible.',
 		displayOptions: {
-			show: { resource: ['account', 'analytics', 'post'], operation: ['getMany', 'getOverview'] },
+			show: {
+				resource: ['account', 'analytics', 'post'],
+				operation: ['getMany', 'getOverview', 'getSearchTerms'],
+			},
 		},
 		modes: [
 			{
@@ -189,7 +199,8 @@ export const properties: INodeProperties[] = [
 		displayOptions: {
 			show: { resource: ['post'], operation: ['create'], publishingMode: ['schedule'] },
 		},
-		description: 'Future publication date. Include a time zone offset in expressions.',
+		description:
+			'Future publication date. Without a zone, uses the workspace timezone; explicit offsets are respected.',
 	},
 	{
 		displayName: 'Publish At',
@@ -226,6 +237,14 @@ export const properties: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['post'], operation: ['create'] } },
 		options: [
+			{
+				displayName: 'Timezone',
+				name: 'timezone',
+				type: 'string',
+				default: '',
+				description:
+					'Optional IANA timezone override. Unzoned dates default to the workspace timezone.',
+			},
 			{
 				displayName: 'Reply To',
 				name: 'replyTo',
@@ -387,11 +406,40 @@ export const properties: INodeProperties[] = [
 				],
 			},
 			{
+				displayName: 'Cursor',
+				name: 'cursor',
+				type: 'string',
+				default: '',
+				description: 'Next cursor returned by Search Terms',
+			},
+			{
 				displayName: 'Include Series',
 				name: 'includeSeries',
 				type: 'boolean',
 				default: true,
 				description: 'Whether to include daily time series alongside aggregate metrics',
+			},
+			{
+				displayName: 'Metrics',
+				name: 'metrics',
+				type: 'string',
+				default: '',
+				description: 'Comma-separated metric keys for Overview, such as callClicks,websiteClicks',
+			},
+			{
+				displayName: 'Page Size',
+				name: 'limit',
+				type: 'number',
+				default: 50,
+				typeOptions: { minValue: 1, maxValue: 100 },
+				description: 'Max number of results to return',
+			},
+			{
+				displayName: 'Platform',
+				name: 'platform',
+				type: 'string',
+				default: '',
+				description: 'Optional API platform identifier, such as GOOGLE_BUSINESS',
 			},
 		],
 	},

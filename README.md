@@ -28,7 +28,7 @@ connection through its OAuth flow. Sign in to dopost and review the requested
 access. Account connection, social-platform authorization, and billing are
 managed in dopost.
 
-Authenticated features require an existing dopost Pro or Agency account with
+Authenticated features require an existing dopost Creator, Pro or Agency account with
 API access. Publishing also requires a connected social account. Analytics
 require the `analytics:read` scope, an active paid plan, and available data.
 If analytics permission is missing, reauthorize the connection.
