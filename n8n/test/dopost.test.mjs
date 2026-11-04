@@ -180,6 +180,43 @@ test('Publish Immediately omits publishAt and supports media-only posts', async 
 	await f.execute();
 	assert.ok(!Object.hasOwn(f.requests[0].request.body, 'publishAt'));
 	assert.deepEqual(f.requests[0].request.body.media, ['https://example.com/image.jpg']);
+	assert.equal(f.requests[0].request.timeout, 300000);
+});
+
+test('read requests keep the short timeout while publishing allows media import', async () => {
+	const f = fixture({ resource: 'post', operation: 'get', postId: 'p1' }, [{ id: 'p1' }]);
+	await f.execute();
+	assert.equal(f.requests[0].request.timeout, 30000);
+});
+
+test('media size and format errors stop publishing without retries or a successful item', async () => {
+	for (const status of [413, 415]) {
+		const upstream = Object.assign(new Error(`Media rejected (${status})`), {
+			statusCode: status,
+			response: {
+				status,
+				data: {
+					error: 'Media rejected',
+					errorCode: status === 413 ? 'MEDIA_TOO_LARGE' : 'MEDIA_INVALID',
+				},
+			},
+		});
+		const f = fixture(
+			{
+				resource: 'post',
+				operation: 'create',
+				accountId: 'a1',
+				publishingMode: 'immediate',
+				mediaJson: '["https://example.com/video.mp4"]',
+			},
+			[upstream],
+		);
+		await assert.rejects(f.execute(), (error) => {
+			assert.equal(error.context.itemIndex, 0);
+			return true;
+		});
+		assert.equal(f.requests.length, 1);
+	}
 });
 
 test('invalid publishing input never sends a mutation', async () => {

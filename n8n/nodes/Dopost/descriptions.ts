@@ -218,7 +218,7 @@ export const properties: INodeProperties[] = [
 		default: '[]',
 		displayOptions: { show: { resource: ['post'], operation: ['create'] } },
 		description:
-			'Up to 10 public media URLs or objects with URL, MIME type, and alt fields. Local file paths are not supported.',
+			'Up to 10 public HTTPS media URLs or objects with URL, MIME type, and alt fields. External files are imported into Dopost storage before publishing, outside the Media library quota. Oversized or invalid files are rejected. Local file paths are not supported.',
 	},
 	{
 		displayName: 'Platform Options (JSON)',

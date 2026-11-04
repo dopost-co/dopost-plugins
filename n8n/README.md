@@ -103,12 +103,22 @@ Platform-specific fields and media limits still apply. See the
 
 ## Limitations and errors
 
-Creation returns an accepted job, not confirmation that a social network has
-published the post. Poll **Post → Get** with `postId`, not `jobId`, for the
+Creation returns `processing` for immediate posts or `scheduled` for future
+posts. Publication is confirmed when the post reaches `PUBLISHED`. Poll **Post → Get** with `postId`, not `jobId`, for the
 final status. Re-running Create can create another post: it is not idempotent.
 
+External post attachments must use public HTTPS URLs. Dopost imports them into
+its storage before accepting the post for publishing or scheduling, outside
+the Media library quota. Paid-plan post
+attachments allow up to 500 MB, subject to smaller platform limits. Size and
+format are checked from the actual bytes; `413` means oversized media and `415`
+means an invalid or unsupported file. Publishing allows up to five minutes for
+media preparation; other requests retain a 30-second timeout. The node surfaces
+API errors without retrying publication automatically.
+
 Local files, binary uploads, recurring series, and trigger nodes are not
-included in this version. Media URLs must be reachable by Dopost. Analytics
+included in this version. The node has no standalone Media upload operation;
+`purpose` applies to the REST/MCP upload flow. Analytics
 availability and history depend on the plan and social platform.
 
 The API rate limit is 60 requests per minute per credential. Large paginated

@@ -28,7 +28,8 @@ export async function dopostRequest(
 				qs,
 				...(body === undefined ? {} : { body }),
 				json: true,
-				timeout: 30000,
+				// Publishing imports external attachments before returning acceptance.
+				timeout: method === 'POST' && path === '/post/publish' ? 300000 : 30000,
 			},
 			authentication === 'oAuth2'
 				? { oauth2: { keyToIncludeInAccessTokenHeader: 'x-api-key' } }

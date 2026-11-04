@@ -1,6 +1,6 @@
 {
   "name": "@dopost/n8n-nodes-dopost",
-  "version": "0.92.1",
+  "version": "1.1.0",
   "description": "Manage social accounts, publish and schedule posts, and read analytics with Dopost",
   "license": "MIT",
   "homepage": "https://dopost.co",
