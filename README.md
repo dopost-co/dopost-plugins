@@ -40,6 +40,7 @@ connection instructions.
 
 - "Show my connected social accounts and upcoming posts."
 - "Turn this changelog into LinkedIn and X posts. Show me the drafts first."
+- "Save this as a draft group for Instagram and Facebook with the same photo."
 - "After I approve the wording, schedule this post tomorrow at 10:00 Europe/Madrid."
 - "Compare my social performance over the last 30 days."
 
@@ -49,9 +50,11 @@ confirmation before deleting a post or media item.
 
 ## Capabilities and limits
 
-The hosted server supports account and workspace discovery, post scheduling
-and management, recurring posts, media-library management, platform limits,
-and account, post, content, and audience analytics.
+The hosted server supports account and workspace discovery, saved drafts,
+grouped publishing and scheduling, recurring posts, media-library management,
+platform limits, and account, post, content, and audience analytics. Shared
+attachments are imported once per group request. The skill checks platform
+limits before publishing and explains structured file and validation errors.
 
 Supported public-media download tools return temporary download URLs for
 content you own or have permission to use. They do not transfer binary files
