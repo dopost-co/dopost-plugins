@@ -13,6 +13,8 @@ hosted dopost MCP server at `https://mcp.dopost.co/mcp`.
 - `skills/dopost-social-content/`: instructions for account selection, drafting,
   publishing approval, scheduling, and analytics.
 - `assets/`: plugin logo and icon.
+- [Dopost for n8n](https://github.com/dopost-co/n8n-nodes-dopost): community node
+  with installation, credentials, and operations guides.
 
 Cursor's manifest explicitly references `mcp.cursor.json` and `skills/`. Its
 MCP URL uses the canonical endpoint without the OpenAI marketplace client
